@@ -20,7 +20,7 @@ This is an unpacked Chrome extension — no build step is required.
 
 1. Download or clone this repository to your computer.
    ```bash
-   git clone https://github.com/<your-username>/<your-repo>.git
+   git clone https://github.com/mehedihasanfoysal8/chrome-homepage.git
    ```
 2. Open Chrome and go to `chrome://extensions`.
 3. Turn on **Developer mode** (toggle in the top-right corner).
