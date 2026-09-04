@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mehedi Hasan's New Tab</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero" aria-label="Start">
+        <div class="hero-main">
+          <div class="topbar">
+            <div>
+              <p class="eyebrow" id="dateText">Today</p>
+              <h1 id="greeting">Welcome back</h1>
+              <p class="quote-card" id="quoteCard"></p>
+            </div>
+            <div class="topbar-actions">
+              <button
+                class="icon-button"
+                id="appsToggle"
+                type="button"
+                aria-label="Quick launcher"
+                title="Quick launcher"
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
+                <span class="waffle" aria-hidden="true">
+                  <i></i><i></i><i></i>
+                  <i></i><i></i><i></i>
+                  <i></i><i></i><i></i>
+                </span>
+              </button>
+              <button
+                class="icon-button"
+                id="themeToggle"
+                type="button"
+                aria-label="Toggle theme"
+                title="Toggle theme"
+              >
+                <span id="themeIcon">☾</span>
+              </button>
+
+              <div class="apps-flyout" id="appsFlyout" hidden>
+                <div class="apps-flyout-header">
+                  <span>Quick Launch</span>
+                  <button class="small-button ghost" id="appsFlyoutAdd" type="button">+ Add</button>
+                </div>
+                <div class="apps-grid" id="appsGrid"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="clock" id="clock">00:00</div>
+          <div class="waqt-display" id="waqtDisplay">Loading Waqt...</div>
+
+          <form class="search" id="searchForm">
+            <div
+              class="engine-switch"
+              id="engineSwitch"
+              role="group"
+              aria-label="Search engine"
+            >
+              <button type="button" class="engine-chip" data-engine="google">
+                Google
+              </button>
+              <button type="button" class="engine-chip" data-engine="bing">
+                Bing
+              </button>
+              <button
+                type="button"
+                class="engine-chip"
+                data-engine="duckduckgo"
+              >
+                DuckDuckGo
+              </button>
+              <button type="button" class="engine-chip" data-engine="youtube">
+                YouTube
+              </button>
+            </div>
+            <div class="search-row">
+              <label class="sr-only" for="searchInput">Search the web</label>
+              <input
+                id="searchInput"
+                type="search"
+                autocomplete="off"
+                placeholder="Search or type a site"
+              />
+              <button type="submit">Search</button>
+            </div>
+          </form>
+        </div>
+
+        <aside class="year-card" aria-label="Year progress">
+          <span class="year-card-label">This year</span>
+          <strong class="year-card-year" id="yearNumber">2026</strong>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              id="yearProgressFill"
+              style="width: 0%"
+            ></div>
+          </div>
+          <span class="year-card-percent" id="yearPercent">0% done</span>
+          <div class="year-card-stats">
+            <div>
+              <strong id="yearDaysLeft">0</strong><span>Days left</span>
+            </div>
+            <div><strong id="yearWeek">W1</strong><span>Week</span></div>
+            <div><strong id="yearMonth">Jan</strong><span>Month</span></div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="grid" aria-label="Dashboard">
+        <div class="panel links-panel">
+          <div class="panel-header">
+            <h2>Quick Links</h2>
+            <button class="small-button" id="addLinkButton" type="button">
+              Add
+            </button>
+          </div>
+          <div class="links" id="links"></div>
+        </div>
+
+        <div class="panel focus-panel">
+          <div class="panel-header">
+            <h2>Focus</h2>
+            <div class="header-actions">
+              <span class="status" id="taskProgress">No tasks yet</span>
+              <button class="small-button" id="clearDoneButton" type="button">
+                Clear Done
+              </button>
+            </div>
+          </div>
+          <form class="task-form" id="taskForm">
+            <input
+              id="taskInput"
+              type="text"
+              autocomplete="off"
+              placeholder="Add something for today"
+            />
+            <button type="submit">Add</button>
+          </form>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              id="taskProgressFill"
+              style="width: 0%"
+            ></div>
+          </div>
+          <ul class="tasks" id="tasks"></ul>
+        </div>
+
+        <div class="panel pomodoro-panel">
+          <div class="panel-header">
+            <h2>Focus Timer</h2>
+            <span class="status" id="pomodoroStatus">Ready</span>
+          </div>
+          <div class="pomodoro">
+            <div class="pomodoro-time" id="pomodoroTime">25:00</div>
+            <div class="pomodoro-mode" id="pomodoroMode">Focus session</div>
+            <div class="pomodoro-actions">
+              <button class="small-button" id="pomodoroStart" type="button">
+                Start
+              </button>
+              <button
+                class="small-button ghost"
+                id="pomodoroAddFive"
+                type="button"
+              >
+                +5 min
+              </button>
+              <button
+                class="small-button ghost"
+                id="pomodoroReset"
+                type="button"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel note-panel">
+          <div class="panel-header">
+            <h2>Notes</h2>
+            <span class="status" id="noteStatus">Saved</span>
+          </div>
+          <textarea
+            id="notes"
+            spellcheck="true"
+            placeholder="Write quick notes here..."
+          ></textarea>
+        </div>
+
+        <div class="panel date-panel">
+          <div class="panel-header">
+            <h2>Time Tracker</h2>
+            <span class="status" id="rangeStatus">Select dates</span>
+          </div>
+          <div class="date-fields">
+            <label>
+              Start
+              <input id="startDate" type="date" />
+            </label>
+            <label>
+              End
+              <input id="endDate" type="date" />
+            </label>
+          </div>
+          <div class="remaining" id="remainingTime">
+            <strong>Pick a start and end date</strong>
+            <span>Your remaining time will show here.</span>
+          </div>
+        </div>
+
+        <div class="panel habit-panel">
+          <div class="panel-header">
+            <h2>Weekly Habits</h2>
+            <button class="small-button" id="addHabitButton" type="button">
+              Add
+            </button>
+          </div>
+          <div class="habit-table" id="habitTable"></div>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="linkDialog">
+      <form method="dialog" class="dialog-card" id="linkForm">
+        <h2>Add Link</h2>
+        <label>
+          Name
+          <input id="linkName" type="text" required placeholder="GitHub" />
+        </label>
+        <label>
+          URL
+          <input
+            id="linkUrl"
+            type="text"
+            required
+            placeholder="https://github.com"
+          />
+        </label>
+        <div class="dialog-actions">
+          <button
+            type="button"
+            class="small-button ghost"
+            id="cancelLinkButton"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="small-button">Save</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="habitDialog">
+      <form method="dialog" class="dialog-card" id="habitForm">
+        <h2>Add Habit</h2>
+        <label>
+          Name
+          <input id="habitName" type="text" required placeholder="Exercise" />
+        </label>
+        <div class="dialog-actions">
+          <button
+            type="button"
+            class="small-button ghost"
+            id="cancelHabitButton"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="small-button">Save</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
