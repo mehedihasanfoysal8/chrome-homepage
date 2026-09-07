@@ -254,15 +254,15 @@ function t12(time24) {
 function updateWaqtDisplay() {
   if (!waqtTimings || !elements.waqtDisplay) return;
   const now = new Date();
-  const currentMins = now.getHours() * 60 + now.getMinutes();
+  const currentSecs = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
 
   const timings = [
-    { name: "Fajr", bn: "ফজর", mins: timeToMinutes(waqtTimings.Fajr) },
-    { name: "Sunrise", bn: "সূর্যোদয়", mins: timeToMinutes(waqtTimings.Sunrise) },
-    { name: "Dhuhr", bn: "যোহর", mins: timeToMinutes(waqtTimings.Dhuhr) },
-    { name: "Asr", bn: "আসর", mins: timeToMinutes(waqtTimings.Asr) },
-    { name: "Maghrib", bn: "মাগরিব", mins: timeToMinutes(waqtTimings.Maghrib) },
-    { name: "Isha", bn: "এশা", mins: timeToMinutes(waqtTimings.Isha) },
+    { name: "Fajr", bn: "ফজর", secs: timeToMinutes(waqtTimings.Fajr) * 60 },
+    { name: "Sunrise", bn: "সূর্যোদয়", secs: timeToMinutes(waqtTimings.Sunrise) * 60 },
+    { name: "Dhuhr", bn: "যোহর", secs: timeToMinutes(waqtTimings.Dhuhr) * 60 },
+    { name: "Asr", bn: "আসর", secs: timeToMinutes(waqtTimings.Asr) * 60 },
+    { name: "Maghrib", bn: "মাগরিব", secs: timeToMinutes(waqtTimings.Maghrib) * 60 },
+    { name: "Isha", bn: "এশা", secs: timeToMinutes(waqtTimings.Isha) * 60 },
   ];
 
   let currentWaqt = timings[5]; // default Isha
@@ -270,12 +270,12 @@ function updateWaqtDisplay() {
   
   for (let i = 0; i < timings.length; i++) {
     if (i === timings.length - 1) {
-       if (currentMins >= timings[i].mins) {
+       if (currentSecs >= timings[i].secs) {
            currentWaqt = timings[i];
            nextWaqt = timings[0];
        }
     } else {
-       if (currentMins >= timings[i].mins && currentMins < timings[i+1].mins) {
+       if (currentSecs >= timings[i].secs && currentSecs < timings[i+1].secs) {
            currentWaqt = timings[i];
            nextWaqt = timings[i+1];
        }
@@ -285,18 +285,22 @@ function updateWaqtDisplay() {
   let startStr = t12(waqtTimings[currentWaqt.name]);
   let endStr = t12(waqtTimings[nextWaqt.name]);
   
-  let remainingMins = nextWaqt.mins - currentMins;
-  if (remainingMins < 0) {
-      remainingMins += 24 * 60;
+  let remainingSecs = nextWaqt.secs - currentSecs;
+  if (remainingSecs < 0) {
+      remainingSecs += 24 * 3600;
   }
   
   let remainingText = "";
-  if (remainingMins >= 60) {
-      const h = Math.floor(remainingMins / 60);
-      const m = remainingMins % 60;
-      remainingText = `${h} ঘণ্টা ${m > 0 ? m + " মিনিট" : ""}`;
+  const h = Math.floor(remainingSecs / 3600);
+  const m = Math.floor((remainingSecs % 3600) / 60);
+  const s = remainingSecs % 60;
+
+  if (h > 0) {
+      remainingText = `${h} ঘণ্টা ${m} মিনিট ${s} সেকেন্ড`;
+  } else if (m > 0) {
+      remainingText = `${m} মিনিট ${s} সেকেন্ড`;
   } else {
-      remainingText = `${remainingMins} মিনিট`;
+      remainingText = `${s} সেকেন্ড`;
   }
   
   let text = `${currentWaqt.bn} ওয়াক্ত (${startStr} - ${endStr}) • শেষ হতে বাকি: ${remainingText}`;
@@ -310,10 +314,19 @@ function updateWaqtDisplay() {
 function updateTime() {
   const now = new Date();
   const hour = now.getHours();
-  elements.clock.textContent = now.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit"
-  });
+  
+  const h = (hour % 12 || 12).toString().padStart(2, "0");
+  const m = now.getMinutes().toString().padStart(2, "0");
+  const s = now.getSeconds().toString().padStart(2, "0");
+  const ampm = hour >= 12 ? "PM" : "AM";
+  
+  elements.clock.innerHTML = `
+    <div class="flip-card">${h}</div><span class="flip-colon">:</span>
+    <div class="flip-card">${m}</div><span class="flip-colon">:</span>
+    <div class="flip-card">${s}</div>
+    <div class="flip-card ampm">${ampm}</div>
+  `;
+
   elements.dateText.textContent = now.toLocaleDateString([], {
     weekday: "long",
     month: "long",
