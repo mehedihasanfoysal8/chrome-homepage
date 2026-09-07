@@ -6,21 +6,95 @@ const searchEngines = {
 };
 
 const quotes = [
-  { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
-  { text: "Small daily improvements are the key to staggering long-term results.", author: "James Clear" },
-  { text: "Focus on being productive instead of busy.", author: "Tim Ferriss" },
-  { text: "Discipline is choosing between what you want now and what you want most.", author: "Abraham Lincoln" },
-  { text: "Well begun is half done.", author: "Aristotle" },
-  { text: "Do the hard jobs first. The easy jobs will take care of themselves.", author: "Dale Carnegie" },
-  { text: "You don't have to be great to start, but you have to start to be great.", author: "Zig Ziglar" },
-  { text: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci" },
-  { text: "A goal without a plan is just a wish.", author: "Antoine de Saint-Exupery" },
-  { text: "Action is the foundational key to all success.", author: "Pablo Picasso" },
-  { text: "What you do today can improve all your tomorrows.", author: "Ralph Marston" },
-  { text: "Slow progress is still progress.", author: "Unknown" },
-  { text: "Motivation gets you going, discipline keeps you growing.", author: "John C. Maxwell" },
-  { text: "The way to get started is to quit talking and begin doing.", author: "Walt Disney" },
-  { text: "Success is the sum of small efforts, repeated day in and day out.", author: "Robert Collier" }
+  {
+    text: "এগিয়ে যাওয়ার রহস্য হলো শুরু করা।",
+    author: "Mark Twain",
+  },
+  {
+    text: "The secret of getting ahead is getting started.",
+    author: "Mark Twain",
+  },
+
+  {
+    text: "প্রতিদিনের ছোট ছোট উন্নতিই দীর্ঘমেয়াদি সাফল্যের চাবিকাঠি।",
+    author: "James Clear",
+  },
+  {
+    text: "Small daily improvements are the key to staggering long-term results.",
+    author: "James Clear",
+  },
+
+  {
+    text: "পরিকল্পনা ছাড়া লক্ষ্য শুধু একটি ইচ্ছা।",
+    author: "Antoine de Saint-Exupéry",
+  },
+  {
+    text: "A goal without a plan is just a wish.",
+    author: "Antoine de Saint-Exupéry",
+  },
+
+  {
+    text: "কঠিন কাজগুলো আগে করুন, সহজ কাজগুলো আপনাআপনি হয়ে যাবে।",
+    author: "Dale Carnegie",
+  },
+  {
+    text: "Do the hard jobs first. The easy jobs will take care of themselves.",
+    author: "Dale Carnegie",
+  },
+
+  {
+    text: "আজ আপনি যা করবেন, তা আপনার আগামী দিনগুলোকে আরও সুন্দর করতে পারে।",
+    author: "Ralph Marston",
+  },
+  {
+    text: "What you do today can improve all your tomorrows.",
+    author: "Ralph Marston",
+  },
+
+  {
+    text: "ধীরগতির অগ্রগতিও অগ্রগতি।",
+    author: "Unknown",
+  },
+  {
+    text: "Slow progress is still progress.",
+    author: "Unknown",
+  },
+
+  {
+    text: "অনুপ্রেরণা আপনাকে শুরু করতে সাহায্য করে, আর শৃঙ্খলা আপনাকে এগিয়ে যেতে সাহায্য করে।",
+    author: "John C. Maxwell",
+  },
+  {
+    text: "Motivation gets you going, discipline keeps you growing.",
+    author: "John C. Maxwell",
+  },
+
+  {
+    text: "শুরু করার সেরা উপায় হলো কথা বলা বন্ধ করে কাজ শুরু করা।",
+    author: "Walt Disney",
+  },
+  {
+    text: "The way to get started is to quit talking and begin doing.",
+    author: "Walt Disney",
+  },
+
+  {
+    text: "সাফল্য হলো প্রতিদিনের ছোট ছোট প্রচেষ্টার সমষ্টি।",
+    author: "Robert Collier",
+  },
+  {
+    text: "Success is the sum of small efforts, repeated day in and day out.",
+    author: "Robert Collier",
+  },
+
+  {
+    text: "ঘড়ির দিকে তাকিয়ে থেকো না; ঘড়ির মতো চলতে থাকো।",
+    author: "Sam Levenson",
+  },
+  {
+    text: "Don't watch the clock; do what it does. Keep going.",
+    author: "Sam Levenson",
+  },
 ];
 
 const googleApps = [
@@ -47,6 +121,7 @@ const HABIT_DAYS = [
   { short: "Sat", full: "Saturday" },
   { short: "Sun", full: "Sunday" }
 ];
+
 const POMODORO_FOCUS_SECONDS = 25 * 60;
 const POMODORO_BREAK_SECONDS = 5 * 60;
 const POMODORO_MAX_SECONDS = 120 * 60;
@@ -123,6 +198,7 @@ const elements = {
   themeToggle: document.querySelector("#themeToggle"),
   themeIcon: document.querySelector("#themeIcon"),
   pomodoro: document.querySelector(".pomodoro"),
+  pomodoroTask: document.querySelector("#pomodoroTask"),
   pomodoroTime: document.querySelector("#pomodoroTime"),
   pomodoroMode: document.querySelector("#pomodoroMode"),
   pomodoroStatus: document.querySelector("#pomodoroStatus"),
@@ -180,6 +256,20 @@ elements.trackerTitle.addEventListener("keydown", (e) => {
     elements.trackerTitle.blur();
   }
 });
+
+let pomodoroTaskText = store.get("pomodoroTask") || "Click to set focus task";
+if (elements.pomodoroTask) {
+  elements.pomodoroTask.textContent = pomodoroTaskText;
+  elements.pomodoroTask.addEventListener("blur", () => {
+    store.set("pomodoroTask", elements.pomodoroTask.textContent);
+  });
+  elements.pomodoroTask.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      elements.pomodoroTask.blur();
+    }
+  });
+}
 
 function normalizeUrl(value) {
   const trimmed = value.trim();
@@ -267,65 +357,137 @@ function updateWaqtDisplay() {
 
   let currentWaqt = timings[5]; // default Isha
   let nextWaqt = timings[0];
-  
+
   for (let i = 0; i < timings.length; i++) {
     if (i === timings.length - 1) {
-       if (currentSecs >= timings[i].secs) {
-           currentWaqt = timings[i];
-           nextWaqt = timings[0];
-       }
+      if (currentSecs >= timings[i].secs) {
+        currentWaqt = timings[i];
+        nextWaqt = timings[0];
+      }
     } else {
-       if (currentSecs >= timings[i].secs && currentSecs < timings[i+1].secs) {
-           currentWaqt = timings[i];
-           nextWaqt = timings[i+1];
-       }
+      if (currentSecs >= timings[i].secs && currentSecs < timings[i + 1].secs) {
+        currentWaqt = timings[i];
+        nextWaqt = timings[i + 1];
+      }
     }
   }
 
   let startStr = t12(waqtTimings[currentWaqt.name]);
   let endStr = t12(waqtTimings[nextWaqt.name]);
-  
+
   let remainingSecs = nextWaqt.secs - currentSecs;
   if (remainingSecs < 0) {
-      remainingSecs += 24 * 3600;
+    remainingSecs += 24 * 3600;
   }
-  
+
   let remainingText = "";
   const h = Math.floor(remainingSecs / 3600);
   const m = Math.floor((remainingSecs % 3600) / 60);
   const s = remainingSecs % 60;
 
   if (h > 0) {
-      remainingText = `${h} ঘণ্টা ${m} মিনিট ${s} সেকেন্ড`;
+    remainingText = `${h} ঘণ্টা ${m} মিনিট ${s} সেকেন্ড`;
   } else if (m > 0) {
-      remainingText = `${m} মিনিট ${s} সেকেন্ড`;
+    remainingText = `${m} মিনিট ${s} সেকেন্ড`;
   } else {
-      remainingText = `${s} সেকেন্ড`;
+    remainingText = `${s} সেকেন্ড`;
   }
-  
+
   let text = `${currentWaqt.bn} ওয়াক্ত (${startStr} - ${endStr}) • শেষ হতে বাকি: ${remainingText}`;
   if (currentWaqt.name === 'Sunrise') {
-      text = `সূর্যোদয় - নামাজ নিষেধ (${startStr} - ${endStr}) • ওয়াক্ত শুরু হতে বাকি: ${remainingText}`;
+    text = `সূর্যোদয় - নামাজ নিষেধ (${startStr} - ${endStr}) • ওয়াক্ত শুরু হতে বাকি: ${remainingText}`;
   }
-  
+
   elements.waqtDisplay.textContent = text;
+}
+
+let flipClockInitialized = false;
+
+function createFlipUnit(id, fallbackVal, isAmPm = false) {
+  const extraClass = isAmPm ? " ampm" : "";
+  return `
+    <div class="flip-unit${extraClass}" id="${id}" data-val="${fallbackVal}">
+        <div class="flip-placeholder">${fallbackVal}</div>
+        <div class="flip-half flip-top"><span>${fallbackVal}</span></div>
+        <div class="flip-half flip-bottom"><span>${fallbackVal}</span></div>
+        <div class="flip-half flip-flap-top"><span>${fallbackVal}</span></div>
+        <div class="flip-half flip-flap-bottom"><span>${fallbackVal}</span></div>
+    </div>
+    `;
+}
+
+function updateFlipUnit(id, nextValue) {
+  const unit = document.getElementById(id);
+  if (!unit) return;
+  const currentVal = unit.dataset.val;
+  if (currentVal === nextValue) return;
+
+  unit.dataset.val = nextValue;
+
+  unit.querySelector('.flip-placeholder').textContent = nextValue;
+
+  const top = unit.querySelector('.flip-top span');
+  const bottom = unit.querySelector('.flip-bottom span');
+  const flapTop = unit.querySelector('.flip-flap-top span');
+  const flapBottom = unit.querySelector('.flip-flap-bottom span');
+
+  const flapTopContainer = unit.querySelector('.flip-flap-top');
+  const flapBottomContainer = unit.querySelector('.flip-flap-bottom');
+
+  top.textContent = nextValue;
+
+  flapTop.textContent = currentVal;
+  flapTopContainer.classList.remove('fold');
+  void flapTopContainer.offsetWidth;
+  flapTopContainer.classList.add('fold');
+
+  flapBottom.textContent = nextValue;
+  flapBottomContainer.classList.remove('unfold');
+  void flapBottomContainer.offsetWidth;
+  flapBottomContainer.classList.add('unfold');
+
+  setTimeout(() => {
+    bottom.textContent = nextValue;
+  }, 600);
 }
 
 function updateTime() {
   const now = new Date();
   const hour = now.getHours();
-  
+
   const h = (hour % 12 || 12).toString().padStart(2, "0");
   const m = now.getMinutes().toString().padStart(2, "0");
   const s = now.getSeconds().toString().padStart(2, "0");
   const ampm = hour >= 12 ? "PM" : "AM";
-  
-  elements.clock.innerHTML = `
-    <div class="flip-card">${h}</div><span class="flip-colon">:</span>
-    <div class="flip-card">${m}</div><span class="flip-colon">:</span>
-    <div class="flip-card">${s}</div>
-    <div class="flip-card ampm">${ampm}</div>
-  `;
+
+  if (!flipClockInitialized) {
+    elements.clock.innerHTML = `
+          <div class="flip-group">
+            ${createFlipUnit('flip-h1', h[0])}
+            ${createFlipUnit('flip-h2', h[1])}
+          </div>
+          <span class="flip-colon">:</span>
+          <div class="flip-group">
+            ${createFlipUnit('flip-m1', m[0])}
+            ${createFlipUnit('flip-m2', m[1])}
+          </div>
+          <span class="flip-colon">:</span>
+          <div class="flip-group">
+            ${createFlipUnit('flip-s1', s[0])}
+            ${createFlipUnit('flip-s2', s[1])}
+          </div>
+          ${createFlipUnit('flip-ampm', ampm, true)}
+      `;
+    flipClockInitialized = true;
+  } else {
+    updateFlipUnit('flip-h1', h[0]);
+    updateFlipUnit('flip-h2', h[1]);
+    updateFlipUnit('flip-m1', m[0]);
+    updateFlipUnit('flip-m2', m[1]);
+    updateFlipUnit('flip-s1', s[0]);
+    updateFlipUnit('flip-s2', s[1]);
+    updateFlipUnit('flip-ampm', ampm);
+  }
 
   elements.dateText.textContent = now.toLocaleDateString([], {
     weekday: "long",
@@ -503,7 +665,7 @@ function renderTasks() {
       e.dataTransfer.dropEffect = "move";
       const draggingItem = elements.tasks.querySelector('.dragging');
       if (!draggingItem || draggingItem === item) return;
-      
+
       const bounding = item.getBoundingClientRect();
       const offset = bounding.y + (bounding.height / 2);
       if (e.clientY - offset > 0) {
@@ -524,7 +686,7 @@ function renderTasks() {
       e.preventDefault();
       item.style.borderTop = "";
       item.style.borderBottom = "";
-      
+
       if (draggedTaskIndex === null || draggedTaskIndex === index) return;
 
       const bounding = item.getBoundingClientRect();
@@ -536,10 +698,10 @@ function renderTasks() {
 
       const draggedTask = tasks.splice(draggedTaskIndex, 1)[0];
       if (draggedTaskIndex < targetIndex) {
-          targetIndex--;
+        targetIndex--;
       }
       tasks.splice(targetIndex, 0, draggedTask);
-      
+
       store.set("tasks", tasks);
       renderTasks();
     });
@@ -567,10 +729,10 @@ function renderTasks() {
       input.type = "text";
       input.value = task.text;
       input.className = "edit-task-input";
-      
+
       item.replaceChild(input, label);
       input.focus();
-      
+
       const saveEdit = () => {
         const newText = input.value.trim();
         if (newText) {
@@ -579,7 +741,7 @@ function renderTasks() {
         }
         renderTasks();
       };
-      
+
       input.addEventListener("blur", saveEdit);
       input.addEventListener("keydown", (e) => {
         if (e.key === "Enter") saveEdit();
@@ -751,9 +913,33 @@ function notify(title, body) {
   new Notification(title, { body });
 }
 
+function playNotificationSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.5);
+
+    gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.5);
+  } catch (e) {
+    console.error("Audio playback failed", e);
+  }
+}
+
 function pomodoroTick() {
   pomodoro.remaining -= 1;
   if (pomodoro.remaining <= 0) {
+    playNotificationSound();
     const finishedMode = pomodoro.mode;
     pomodoro.mode = finishedMode === "focus" ? "break" : "focus";
     pomodoro.remaining = pomodoro.mode === "focus" ? POMODORO_FOCUS_SECONDS : POMODORO_BREAK_SECONDS;
