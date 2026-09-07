@@ -38,7 +38,15 @@ const googleApps = [
   { name: "Keep", url: "https://keep.google.com" }
 ];
 
-const HABIT_DAYS = ["M", "T", "W", "T", "F", "S", "S"];
+const HABIT_DAYS = [
+  { short: "Mon", full: "Monday" },
+  { short: "Tue", full: "Tuesday" },
+  { short: "Wed", full: "Wednesday" },
+  { short: "Thu", full: "Thursday" },
+  { short: "Fri", full: "Friday" },
+  { short: "Sat", full: "Saturday" },
+  { short: "Sun", full: "Sunday" }
+];
 const POMODORO_FOCUS_SECONDS = 25 * 60;
 const POMODORO_BREAK_SECONDS = 5 * 60;
 const POMODORO_MAX_SECONDS = 120 * 60;
@@ -57,8 +65,9 @@ const defaults = {
   dateRange: { start: "", end: "" },
   theme: "dark",
   searchEngine: "google",
-  habits: { weekStart: "", habits: [] },
-  pomodoro: { mode: "focus", remaining: POMODORO_FOCUS_SECONDS, running: false, updatedAt: 0 }
+  pomodoro: { mode: "focus", remaining: POMODORO_FOCUS_SECONDS, running: false, updatedAt: 0 },
+  focusTitle: "Focus",
+  trackerTitle: "Time Tracker"
 };
 
 const store = {
@@ -103,12 +112,14 @@ const elements = {
   clearDoneButton: document.querySelector("#clearDoneButton"),
   taskProgress: document.querySelector("#taskProgress"),
   taskProgressFill: document.querySelector("#taskProgressFill"),
+  focusTitle: document.querySelector("#focusTitle"),
   notes: document.querySelector("#notes"),
   noteStatus: document.querySelector("#noteStatus"),
   startDate: document.querySelector("#startDate"),
   endDate: document.querySelector("#endDate"),
   rangeStatus: document.querySelector("#rangeStatus"),
   remainingTime: document.querySelector("#remainingTime"),
+  trackerTitle: document.querySelector("#trackerTitle"),
   themeToggle: document.querySelector("#themeToggle"),
   themeIcon: document.querySelector("#themeIcon"),
   pomodoro: document.querySelector(".pomodoro"),
@@ -130,6 +141,45 @@ let links = store.get("links");
 let tasks = store.get("tasks");
 let searchEngine = store.get("searchEngine");
 let habitState = store.get("habits");
+let focusTitle = store.get("focusTitle");
+let trackerTitle = store.get("trackerTitle");
+
+elements.focusTitle.textContent = focusTitle;
+elements.trackerTitle.textContent = trackerTitle;
+
+elements.focusTitle.addEventListener("blur", () => {
+  const newTitle = elements.focusTitle.textContent.trim();
+  if (!newTitle) {
+    elements.focusTitle.textContent = "Focus";
+    store.set("focusTitle", "Focus");
+  } else {
+    store.set("focusTitle", newTitle);
+  }
+});
+
+elements.focusTitle.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    elements.focusTitle.blur();
+  }
+});
+
+elements.trackerTitle.addEventListener("blur", () => {
+  const newTitle = elements.trackerTitle.textContent.trim();
+  if (!newTitle) {
+    elements.trackerTitle.textContent = "Time Tracker";
+    store.set("trackerTitle", "Time Tracker");
+  } else {
+    store.set("trackerTitle", newTitle);
+  }
+});
+
+elements.trackerTitle.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    elements.trackerTitle.blur();
+  }
+});
 
 function normalizeUrl(value) {
   const trimmed = value.trim();
@@ -415,11 +465,71 @@ function updateTaskProgress() {
   elements.taskProgressFill.style.width = `${percent}%`;
 }
 
+let draggedTaskIndex = null;
+
 function renderTasks() {
   elements.tasks.innerHTML = "";
   tasks.forEach((task, index) => {
     const item = document.createElement("li");
     item.className = `task${task.done ? " done" : ""}`;
+    item.draggable = true;
+
+    item.addEventListener('dragstart', (e) => {
+      draggedTaskIndex = index;
+      e.dataTransfer.effectAllowed = "move";
+      setTimeout(() => item.classList.add('dragging'), 0);
+    });
+
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      draggedTaskIndex = null;
+    });
+
+    item.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      const draggingItem = elements.tasks.querySelector('.dragging');
+      if (!draggingItem || draggingItem === item) return;
+      
+      const bounding = item.getBoundingClientRect();
+      const offset = bounding.y + (bounding.height / 2);
+      if (e.clientY - offset > 0) {
+        item.style.borderBottom = "2px solid var(--accent)";
+        item.style.borderTop = "";
+      } else {
+        item.style.borderTop = "2px solid var(--accent)";
+        item.style.borderBottom = "";
+      }
+    });
+
+    item.addEventListener('dragleave', () => {
+      item.style.borderTop = "";
+      item.style.borderBottom = "";
+    });
+
+    item.addEventListener('drop', (e) => {
+      e.preventDefault();
+      item.style.borderTop = "";
+      item.style.borderBottom = "";
+      
+      if (draggedTaskIndex === null || draggedTaskIndex === index) return;
+
+      const bounding = item.getBoundingClientRect();
+      const offset = bounding.y + (bounding.height / 2);
+      let targetIndex = index;
+      if (e.clientY - offset > 0) {
+        targetIndex = index + 1;
+      }
+
+      const draggedTask = tasks.splice(draggedTaskIndex, 1)[0];
+      if (draggedTaskIndex < targetIndex) {
+          targetIndex--;
+      }
+      tasks.splice(targetIndex, 0, draggedTask);
+      
+      store.set("tasks", tasks);
+      renderTasks();
+    });
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
@@ -431,7 +541,38 @@ function renderTasks() {
     });
 
     const label = document.createElement("span");
+    label.className = "task-label";
     label.textContent = task.text;
+
+    const editButton = document.createElement("button");
+    editButton.className = "edit-task";
+    editButton.type = "button";
+    editButton.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
+    editButton.title = "Edit task";
+    editButton.addEventListener("click", () => {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = task.text;
+      input.className = "edit-task-input";
+      
+      item.replaceChild(input, label);
+      input.focus();
+      
+      const saveEdit = () => {
+        const newText = input.value.trim();
+        if (newText) {
+          tasks[index].text = newText;
+          store.set("tasks", tasks);
+        }
+        renderTasks();
+      };
+      
+      input.addEventListener("blur", saveEdit);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") saveEdit();
+        if (e.key === "Escape") renderTasks();
+      });
+    });
 
     const deleteButton = document.createElement("button");
     deleteButton.className = "delete-task";
@@ -444,7 +585,11 @@ function renderTasks() {
       renderTasks();
     });
 
-    item.append(checkbox, label, deleteButton);
+    const actions = document.createElement("div");
+    actions.className = "task-actions";
+    actions.append(editButton, deleteButton);
+
+    item.append(checkbox, label, actions);
     elements.tasks.append(item);
   });
 
@@ -683,7 +828,7 @@ function renderHabits() {
 
   const header = document.createElement("div");
   header.className = "habit-header";
-  header.innerHTML = `<span></span>${HABIT_DAYS.map((d) => `<span>${d}</span>`).join("")}<span></span>`;
+  header.innerHTML = `<span></span>${HABIT_DAYS.map((d) => `<span title="${d.full}">${d.short}</span>`).join("")}<span></span>`;
   elements.habitTable.append(header);
 
   habitState.habits.forEach((habit, habitIndex) => {
